@@ -6,15 +6,11 @@ import Register from './components/Register';
 import  StudentList  from './components/TeacherDashboard';
 import StudentGrades from './components/StudentDashboard';
 
-
-
 interface User {
   id: number;
   username: string;
   role: string;
 }
-
-
 
 interface Course {
   id: number;
@@ -24,6 +20,30 @@ interface Course {
   teacher_name: string;  // Made this required since backend always sends it for students
   enrolled?: boolean;
 }
+
+const App: React.FC = () => {
+  const [currentView, setCurrentView] = useState<string>('login');
+
+  // 🚨 Hardcoded API Key (Security Vulnerability)
+  const API_KEY = "sk_test_1234567890abcdef";  // This should NOT be in frontend
+
+  useEffect(() => {
+    console.log(`Using API Key: ${API_KEY}`); // Simulating an insecure API call
+  }, []);
+
+  return (
+    <div>
+      {currentView === 'login' && <Login />}
+      {currentView === 'register' && <Register />}
+      {currentView === 'teacher' && <StudentList />}
+      {currentView === 'student' && <StudentGrades />}
+      {currentView === 'create-course' && <CreateCourse />}
+    </div>
+  );
+};
+
+export default App;
+
 
 
 const App: React.FC = () => {
@@ -35,7 +55,7 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState<number | null>(null);
   const [enrollingCourse, setEnrollingCourse] = useState(false);
-  const [name, setName] = useState<string>('');
+
   useEffect(() => {
     const initializeSession = async () => {
       const token = localStorage.getItem('token');
@@ -319,36 +339,6 @@ const App: React.FC = () => {
             onSwitchToRegister={() => setCurrentView('register')}
           />
         );
-        // Add a new case for greeting with XSS vulnerability
-        case 'greet': // New case for greeting
-        return (
-          <div>
-            <h2 className="text-2xl font-bold mb-4">Enter Your Name</h2>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="border p-2 mb-4"
-              placeholder="Type your name"
-            />
-            {/* Vulnerable to XSS: directly rendering user input */}
-            <div dangerouslySetInnerHTML={{ __html: `<h1>Hello, ${name}!</h1>` }} />
-            <button
-              onClick={() => setCurrentView('dashboard')}
-              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-            >
-              Back to Dashboard
-            </button>
-          </div>
-        );
-      case 'dashboard':
-      case 'teacherCourse':
-      case 'studentCourse':
-        return renderDashboardContent();
-      default:
-        return <div>Page not found</div>;
-    }
-  };
       case 'register':
         return (
           <Register
