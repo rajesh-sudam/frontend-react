@@ -1,1 +1,54 @@
 
+name: Frontend CI/CD
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '16.x'
+
+    - name: Install dependencies
+      run: |
+        npm install
+
+    - name: Run tests
+      run: |
+        npm test
+
+    - name: SonarQube Analysis
+      uses: SonarSource/sonarcloud-github-action@v1
+      with:
+        sonarcloud_token: ${{ secrets.SONAR_TOKEN }}
+      env:
+        SONAR_SCANNER_OPTS: "-Xmx2G"
+      run: |
+        sonar-scanner
+
+  snyk:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install SNYK
+      run: npm install -g snyk
+
+    - name: Test for vulnerabilities using SNYK
+      run: snyk test --all-projects
++
